@@ -21,6 +21,7 @@ float vertices[] = {
 };
 
 int main() {
+	// Initialization of program --- 
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -36,8 +37,11 @@ int main() {
 		printf("GLAD Failed to load GL headers");
 		return 1;
 	}
+	// end of window section ---
+	
+	Shader ourShader("Vertexshader.vert","Fragmentshader.frag");
+
 	//Initialization goes here!
-	// You can use this
 	unsigned VAO;
 	glGenVertexArrays(1, &VAO);
 
@@ -57,6 +61,7 @@ int main() {
 
 	// OVERRIDES THE FIRST glBindBuffer CODE - glBindBuffer(GL_ARRAY_BUFFER, 0);
 	// OR USE glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	/*
 	int success;
 	
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -71,7 +76,8 @@ int main() {
 		printf("ERROR::SHADER::VETEX::COMPILATION_FAILED\n%s", infoLog);
 	}
 
-	//create and compile fragment shader
+	//create and compile fragment shader 
+	
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
@@ -102,6 +108,8 @@ int main() {
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
+	*/
+
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -112,15 +120,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// UPDATE
-		glUseProgram(shaderProgram);
+		ourShader.use();
 		glBindVertexArray(VAO);
 		// DRAW
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		//Clear framebuffer
 		
 		// Set Time Uniform
-		int timeLoc = glGetUniformLocation(shaderProgram, "uTime");
-		glUniform1f(timeLoc, time);
+		// int timeLoc = glGetUniformLocation(shaderProgram, "uTime");
+		// glUniform1f(timeLoc, time);
 
 		//Drawing happens here!
 		glfwSwapBuffers(window);
