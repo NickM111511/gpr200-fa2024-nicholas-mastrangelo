@@ -39,9 +39,10 @@ int main() {
 	Shader ourShader("assets/Vertexshader.vert","assets/Fragmentshader.frag");
 
 	float vertices[] = {
-	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-	 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
+	     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
 	};
 
 	unsigned int indices[] = {
@@ -76,9 +77,10 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
-	/*
+	
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load(FileSystem::getPath("Input file here").c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0);
+	
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -88,7 +90,7 @@ int main() {
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
-	stbi_inage_free(data);
+	stbi_image_free(data);
 
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
@@ -99,8 +101,8 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	data = stbi_load(FileSystem::getPath("Input file here").c_str(), &width, &height, &nrChammels, 0);
-	if(data)
+	data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0);
+	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -110,89 +112,40 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
+	
 	ourShader.use();
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	ourShader.setInt("texture2", 1);
-	*/
+	
+
 	// end of texture section // start of render loop ---
 
 	//glBlendFunc(2 params);
 	//glBlendEquation();
 
-
-	// OVERRIDES THE FIRST glBindBuffer CODE - glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// OR USE glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	/*
-	int success;
-	
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	
-	if (!success) 
-	{
-		char infoLog[512];
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		printf("ERROR::SHADER::VETEX::COMPILATION_FAILED\n%s", infoLog);
-	}
-
-	//create and compile fragment shader 
-	
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		char infoLog[512];
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		printf("ERROR::FRAGMENT::VETEX::COMPILATION_FAILED\n%s", infoLog);
-	}
-
-	// create a shader program, link
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	
-	if (!success)
-	{
-		char infoLog[512];
-		glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
-		printf("ERROR::PROGRAM::LINKING_FAILED\n%s", infoLog);
-	}
-
-	glUseProgram(shaderProgram);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	*/
-
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
+		
 		// INPUT
-		float time = (float)glfwGetTime();
 
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
 		// UPDATE
 		ourShader.use();
 		glBindVertexArray(VAO);
 		// DRAW
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // not working
 		//Clear framebuffer
-		
-		// Set Time Uniform
-		// int timeLoc = glGetUniformLocation(shaderProgram, "uTime");
-		// glUniform1f(timeLoc, time);
 
 		//Drawing happens here!
 		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 	printf("Shutting down...");
 }
