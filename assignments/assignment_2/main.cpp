@@ -5,13 +5,13 @@
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <ew/external/stb_image.h>
+
 
 #include <iostream>
 #include <shader.h>
 
-// #define STB_IMAGE_IMPLEMENTATION
-// #include "stb_image.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <ew/external/stb_image.h>
 
 
 
@@ -58,12 +58,18 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // for position
 	glEnableVertexAttribArray(0);
 
-	// COLOR (RGBA)
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(sizeof(float) * 3));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
 	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // for texture coordinates
+	glEnableVertexAttribArray(2);
+
 	// end of buffer section // start of texture section ---
 	unsigned int texture1, texture2;
 
