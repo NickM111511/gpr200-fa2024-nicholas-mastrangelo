@@ -25,6 +25,11 @@ int main() {
 		printf("GLFW failed to init!");
 		return 1;
 	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // this may or may not be needed. 
+
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Assignment 2 Thing", NULL, NULL);
 	if (window == NULL) {
 		printf("GLFW failed to create window");
@@ -73,7 +78,7 @@ int main() {
 	// end of buffer section // start of texture section ---
 	unsigned int texture1, texture2;
 
-	glGenTextures(1, &texture1);
+	glGenTextures(1, &texture1);  // for the det texture
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -98,7 +103,7 @@ int main() {
 	}
 	stbi_image_free(data);
 
-	glGenTextures(1, &texture2);
+	glGenTextures(1, &texture2);  // for the background texture
 	glBindTexture(GL_TEXTURE_2D, texture2);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -131,24 +136,18 @@ int main() {
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
-		
-		// INPUT
-
+		// render starting
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		// binding this to texture units
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		// UPDATE
+		// where it renders
 		ourShader.use();
 		glBindVertexArray(VAO);
-		// DRAW
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // not working
-		//Clear framebuffer
-
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//Drawing happens here!
 		glfwSwapBuffers(window);
 		glfwPollEvents();
