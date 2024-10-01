@@ -93,8 +93,9 @@ int main() {
 
 	int width, height, nrChannels;
 	
+	// loading the texture
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0); // front image
 	
 	if (data)
 	{
@@ -116,7 +117,8 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0);
+	// loading the texture
+	data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0); // back image
 	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
