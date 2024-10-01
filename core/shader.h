@@ -1,7 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <ew/external/glad.h>
+#include "ew/external/glad.h"
 
 #include <string>
 #include <fstream>
@@ -77,14 +77,14 @@ public:
 		glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 	}
 
-	void setInt(const std::string& name, bool value)
+	void setInt(const std::string& name, int value)
 	{
 		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 	}
 
-	void setFloat(const std::string& name, bool value)
+	void setFloat(const std::string& name, float value)
 	{
-		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 	}
 
 private:

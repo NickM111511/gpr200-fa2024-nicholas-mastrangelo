@@ -55,6 +55,10 @@ int main() {
 		1, 2, 3
 	};
 	// end of verticies section // start of buffer section ---
+	/*
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // this will be enabled later once image works
+    */
 	unsigned VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -130,9 +134,6 @@ int main() {
 	
 
 	// end of texture section // start of render loop ---
-
-	//glBlendFunc(2 params);
-	//glBlendEquation();
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
