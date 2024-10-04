@@ -55,10 +55,10 @@ int main() {
 		1, 2, 3
 	};
 	// end of verticies section // start of buffer section ---
-	/*
+	
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // this will be enabled later once image works
-    */
+    
 	unsigned VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -99,7 +99,7 @@ int main() {
 	
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -118,7 +118,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// loading the texture
-	data = stbi_load("assets/background.png", &width, &height, &nrChannels, 0); // back image
+	data = stbi_load("assets/Backgroundcharacter.png", &width, &height, &nrChannels, 0); // back image
 	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
