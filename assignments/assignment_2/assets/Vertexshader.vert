@@ -10,5 +10,5 @@ void main()
 {
     gl_Position = vec4(aPos * 2, 1.0);
     ourColor = aColor;
-    TexCoord = aTexCoord;
+    TexCoord = 5 * aTexCoord; // to do the fracting, multiply
 }

@@ -42,6 +42,7 @@ int main() {
 	}
 	// end of window section // start of verticies section ---
 	Shader ourShader("assets/Vertexshader.vert","assets/Fragmentshader.frag");
+	Shader backgroundShader("assets/Vertexshader.vert", "assets/Fragmentshader.frag");
 
 	float vertices[] = {
 	     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
