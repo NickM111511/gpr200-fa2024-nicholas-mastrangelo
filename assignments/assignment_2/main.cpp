@@ -42,7 +42,7 @@ int main() {
 	}
 	// end of window section // start of verticies section ---
 	Shader ourShader("assets/Vertexshader.vert","assets/Fragmentshader.frag");
-	Shader backgroundShader("assets/Vertexshader.vert", "assets/Fragmentshader.frag");
+	Shader backgroundShader("assets/background.vert", "assets/background.frag");
 
 	float vertices[] = {
 	     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -57,9 +57,6 @@ int main() {
 	};
 	// end of verticies section // start of buffer section ---
 	
-	glEnable(GL_BLEND); 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // this will be enabled later once image works
-    
 	unsigned VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -81,7 +78,7 @@ int main() {
 	glEnableVertexAttribArray(2);
 
 	// end of buffer section // start of texture section ---
-	unsigned int texture1, texture2;
+	unsigned int texture1, texture2, texture3;
 
 	glGenTextures(1, &texture1);  // for the det texture
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -89,8 +86,8 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
 	
@@ -115,11 +112,11 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// loading the texture
-	data = stbi_load("assets/Backgroundcharacter.png", &width, &height, &nrChannels, 0); // back image
+	data = stbi_load("assets/Backgroundarea.png", &width, &height, &nrChannels, 0); // back image
 	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -131,15 +128,47 @@ int main() {
 	}
 	stbi_image_free(data);
 	
+	glGenTextures(1, &texture3);  // for the background character texture
+	glBindTexture(GL_TEXTURE_2D, texture3);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	data = stbi_load("assets/Backgroundcharacter.png", &width, &height, &nrChannels, 0); // back image
+	if(data) 
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
 	ourShader.use();
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
-	ourShader.setInt("texture2", 1);
+
+	backgroundShader.use();
+	glUniform1i(glGetUniformLocation(backgroundShader.ID, "texture2"), 1);
+	backgroundShader.setInt("texture3", 2);
 	
 
 	// end of texture section // start of render loop ---
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // this will be enabled later once image works
+
+		float time = glfwGetTime(); // getting the time to use for the shaders
+		
+
+
 		// render starting
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -148,8 +177,16 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texture3);
 		// where it renders
+		backgroundShader.use();
+		glUniform1f(glGetUniformLocation(backgroundShader.ID, "uTime"), time);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
+
 		ourShader.use();
+		glUniform1f(glGetUniformLocation(ourShader.ID, "uTime"), time);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//Drawing happens here!

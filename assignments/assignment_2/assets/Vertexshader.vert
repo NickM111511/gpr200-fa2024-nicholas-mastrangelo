@@ -6,9 +6,12 @@ layout (location = 2) in vec2 aTexCoord;
 out vec3 ourColor;
 out vec2 TexCoord;
 
+uniform float uTime;
+
 void main()
 {
-    gl_Position = vec4(aPos * 2, 1.0);
+    gl_Position = vec4(aPos, 0.80);
     ourColor = aColor;
-    TexCoord = 5 * aTexCoord; // to do the fracting, multiply
+    TexCoord = aTexCoord; // to do the fracting, multiply
+    TexCoord.y += abs(sin(5 * uTime)) * 0.1;
 }
