@@ -5,6 +5,8 @@
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 #include <iostream>
@@ -41,7 +43,7 @@ int main() {
 		return 1;
 	}
 	// end of window section // start of verticies section ---
-	Shader ourShader("assets/Vertexshader.vert","assets/Fragmentshader.frag");
+	// Shader ourShader("assets/Vertexshader.vert","assets/Fragmentshader.frag");
 	Shader transformShader("assets/transform.vert","assets/transform.frag"); // new for assignment 4
 	// Shader backgroundShader("assets/background.vert", "assets/background.frag"); // assignment 2
 
@@ -65,29 +67,31 @@ int main() {
 		1, 2, 3
 	};
 	// end of verticies section // start of buffer section ---
-	
 	unsigned VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // for position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
 	glEnableVertexAttribArray(1);
 
+	/*
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // for texture coordinates
 	glEnableVertexAttribArray(2);
+	*/
 
 	// end of buffer section // start of texture section ---
-	unsigned int texture1; //, texture2, texture3; assingment 2
+	unsigned int texture1, texture2; //, texture3; assingment 2
 
 	glGenTextures(1, &texture1);  // for the det texture
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -99,7 +103,6 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
-	
 	// loading the texture
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0); // front image
@@ -114,7 +117,7 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-	/*
+	
 	glGenTextures(1, &texture2);  // for the background texture
 	glBindTexture(GL_TEXTURE_2D, texture2);
 	
@@ -125,7 +128,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// loading the texture 
-	data = stbi_load("assets/Backgroundarea.png", &width, &height, &nrChannels, 0); // back image
+	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0); // back image
 	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -136,7 +139,7 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-	
+	/*
 	glGenTextures(1, &texture3);  // for the background character texture
 	glBindTexture(GL_TEXTURE_2D, texture3);
 
@@ -159,8 +162,10 @@ int main() {
 	stbi_image_free(data);
 	*/
 
-	ourShader.use();
-	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+	transformShader.use();
+	transformShader.setInt("texture1", 0);
+	transformShader.setInt("texture2", 1);
+	//glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 
 	/*
 	backgroundShader.use();
@@ -184,6 +189,19 @@ int main() {
 		// binding this to texture units
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+
+		glm::mat4 transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(0.5f,-0.5f,0.0f));
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f,0.0f,1.0f));
+
+		transformShader.use();
+		unsigned int transformLoc = glGetUniformLocation(transformShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
 		/*
 		glActiveTexture(GL_TEXTURE1);
@@ -201,10 +219,10 @@ int main() {
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
 		*/
 
-		ourShader.use();
-		glUniform1f(glGetUniformLocation(ourShader.ID, "uTime"), time);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// ourShader.use();
+		// glUniform1f(glGetUniformLocation(ourShader.ID, "uTime"), time);
+		// glBindVertexArray(VAO); 
+		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//Drawing happens here!
 		glfwSwapBuffers(window);
 		glfwPollEvents();
