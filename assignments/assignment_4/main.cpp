@@ -9,14 +9,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <iostream>
 #include <shader.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <ew/external/stb_image.h>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+// needs to be called for camera controls
+// void framebuffer_size_callback(GLFWwindow* window, int width, int height); // need to check if usable!!
 void processInput(GLFWwindow* window);
 
 // variables being initialized for later use
@@ -53,7 +53,7 @@ int main() {
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); 
+	// glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // check if needed!!
 
 	if (!gladLoadGL(glfwGetProcAddress)) {
 		printf("GLAD Failed to load GL headers");
@@ -120,7 +120,7 @@ int main() {
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f),
 
-		glm::vec3(0.0f,  0.0f,  0.0f), // modify these 10 cubes to be different
+		glm::vec3(0.0f,  0.0f,  0.0f), // modify these 10 cubes to be different!!
 		glm::vec3(2.0f,  5.0f, -15.0f),
 		glm::vec3(-1.5f, -2.2f, -2.5f),
 		glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -132,22 +132,14 @@ int main() {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	unsigned int indices[] = {
-		0, 1, 3,
-		1, 2, 3
-	};
 	// end of verticies section // start of buffer section ---
-	unsigned VBO, VAO, EBO;
+	unsigned VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position
 	glEnableVertexAttribArray(0);
@@ -158,7 +150,7 @@ int main() {
 	// end of buffer section // start of texture section ---
 	unsigned int texture1, texture2;
 
-	glGenTextures(1, &texture1);  // for the det texture
+	glGenTextures(1, &texture1);  
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -168,9 +160,10 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
+
 	// loading the texture
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0); // front image
+	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0);
 	
 	if (data)
 	{
@@ -183,7 +176,7 @@ int main() {
 	}
 	stbi_image_free(data);
 	
-	glGenTextures(1, &texture2);  // for the boxside texture
+	glGenTextures(1, &texture2); 
 	glBindTexture(GL_TEXTURE_2D, texture2);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -193,7 +186,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// loading the texture 
-	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0); // back image
+	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0); 
 	if(data) 
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -211,8 +204,11 @@ int main() {
 
 	// end of texture section // start of render loop ---
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	transformShader.setMat4("projection", projection);
+
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -221,10 +217,7 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // this will be enabled later once image works
-
-		// float time = glfwGetTime(); // getting the time to use for the shaders
+		processInput(window); 
 
 		// render starting
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -238,18 +231,10 @@ int main() {
 		// use the shader
 		transformShader.use();
 
-
-
 		// initilization for the variables
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		/*
-		float radius = 10.f;
-		float camX = static_cast<float>(sin(glfwGetTime()) * radius); 
-		float camZ = static_cast<float>(cos(glfwGetTime()) * radius);
-		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-		*/
-		transformShader.setMat4("view", view);
-
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); 
+		transformShader.setMat4("view", view); 
+		
 		glBindVertexArray(VAO);
 
 		for (unsigned int i = 0; i < 10; i++)
@@ -297,9 +282,4 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
+
