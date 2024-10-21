@@ -17,15 +17,18 @@
 #include <ew/external/stb_image.h>
 
 // needs to be called for camera controls
-// void framebuffer_size_callback(GLFWwindow* window, int width, int height); // need to check if usable!!
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
+// this is used for the randomization factor for the cubes
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution<> r_speed(1, 45);
-std::uniform_int_distribution<> c_size(0.05, 3);
+std::uniform_int_distribution<> c_size(1, 3);
+std::uniform_int_distribution<> x_axis(-5, 5);
+std::uniform_int_distribution<> y_axis(-6, 6);
+std::uniform_int_distribution<> z_axis(-15, 0);
 
 // variables being initialized for later use
 const int SCREEN_WIDTH = 1080;
@@ -42,8 +45,9 @@ float lastX = 1080.0f/2.0f;
 float lastY = 720.0f/2.0f;
 float fov = 60.0f;
 
-float cube_r[20];
-float cubeSize[20];
+const int TOTAL_CUBES = 20; // for the cubes 
+float cube_r[TOTAL_CUBES];
+float cubeSize[TOTAL_CUBES];
 
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
@@ -58,7 +62,7 @@ int main() {
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // this may or may not be needed. 
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -71,7 +75,6 @@ int main() {
 	}
 
 	glfwMakeContextCurrent(window);
-	// glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // check if needed!!
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	
@@ -86,6 +89,7 @@ int main() {
 	// end of window section // start of verticies section ---
 	Shader transformShader("assets/transform.vert","assets/transform.frag");
 
+	//this is to make the cube
 	float vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -130,6 +134,8 @@ int main() {
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	// static places for cubes ** uncomment this and comment out the bottom one for this use **
+	/*
 	glm::vec3 cubePositions[] = { // each cube being made
 		glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
@@ -141,7 +147,6 @@ int main() {
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f),
-
 		glm::vec3(2.0f, 1.0f, 0.0f), 
 		glm::vec3(4.0f, 6.0f, -15.0f),
 		glm::vec3(-3.5f, -3.2f, -2.5f),
@@ -153,16 +158,27 @@ int main() {
 		glm::vec3(3.5f, 1.2f, -1.5f),
 		glm::vec3(-3.3f, 2.0f, -1.5f)
 	};
+	*/
+
+	// dynamic random places for cubes  ** uncomment this and comment out the top one for this use **
+	glm::vec3 cubePositions[TOTAL_CUBES];
 
 	// this is to make each cube rotate uniquely
-	for (int i=0; i<20; i++) 
+	for (int i = 0; i < TOTAL_CUBES; i++)
 	{
 		cube_r[i] = r_speed(gen);
 	}
 
-	for (int i = 0; i < 20; i++) 
+	// this is to make each cube size uniquely
+	for (int i = 0; i < TOTAL_CUBES; i++)
 	{
 		cubeSize[i] = c_size(gen);
+	}
+
+	// this is to make each position uniquely
+	for (int i = 0; i < TOTAL_CUBES; i++) 
+	{
+		cubePositions[i] = glm::vec3(x_axis(gen), y_axis(gen), z_axis(gen));
 	}
 
 	// end of verticies section // start of buffer section ---
@@ -183,6 +199,7 @@ int main() {
 	// end of buffer section // start of texture section ---
 	unsigned int texture1, texture2;
 
+	// 1st texture (aka det) 
 	glGenTextures(1, &texture1);  
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
@@ -194,7 +211,7 @@ int main() {
 
 	int width, height, nrChannels;
 
-	// loading the texture
+	// loading the textures
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0);
 	
@@ -209,6 +226,7 @@ int main() {
 	}
 	stbi_image_free(data);
 	
+	//2nd texture (aka boxside)
 	glGenTextures(1, &texture2); 
 	glBindTexture(GL_TEXTURE_2D, texture2);
 	
@@ -231,18 +249,20 @@ int main() {
 	}
 	stbi_image_free(data);
 
+	// using the textures here
 	transformShader.use();
 	transformShader.setInt("texture1", 0);
 	transformShader.setInt("texture2", 1);
 
 	// end of texture section // start of render loop ---
 
-	glEnable(GL_BLEND); 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
 
+		// time variables
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -252,6 +272,7 @@ int main() {
 		// render starting
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		// binding this to texture units
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
@@ -261,20 +282,25 @@ int main() {
 		// use the shader
 		transformShader.use();
 
+		// for the camera
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		transformShader.setMat4("view", view); 
+
+		glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
+		transformShader.setMat4("projection", projection);
 		
 		glBindVertexArray(VAO);
 
-		for (unsigned int i = 0; i < 20; i++)
+		for (unsigned int i = 0; i < TOTAL_CUBES; i++) // making each cube here
 		{
-			glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
-			transformShader.setMat4("projection", projection);
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			float angle = cube_r[i] * (deltaTime+1) * glfwGetTime(); // mess with this for rotation
+			model = glm::scale(model, glm::vec3(cubeSize[i]));
+
+			float angle = cube_r[i] * (deltaTime+1) * glfwGetTime(); 
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(0.8f, 0.3f, 0.5f));
 			transformShader.setMat4("model", model);
+
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}		
 
@@ -325,6 +351,7 @@ void processInput(GLFWwindow* window)
 	}
 }
 
+// this is for the mouse movement function
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) 
 {
 	float xpos = static_cast<float>(xposIn);
@@ -364,6 +391,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	cameraFront = glm::normalize(front);
 }
 
+// this if for the scroll function
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	fov -= (float)yoffset;
