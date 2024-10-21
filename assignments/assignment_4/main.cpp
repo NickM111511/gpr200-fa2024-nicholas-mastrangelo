@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <random>
 #include <iostream>
 #include <shader.h>
 
@@ -20,6 +21,11 @@
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<> r_speed(1, 45);
+std::uniform_int_distribution<> c_size(0.05, 3);
 
 // variables being initialized for later use
 const int SCREEN_WIDTH = 1080;
@@ -35,6 +41,9 @@ float pitch = 0.0f;
 float lastX = 1080.0f/2.0f;
 float lastY = 720.0f/2.0f;
 float fov = 60.0f;
+
+float cube_r[20];
+float cubeSize[20];
 
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
@@ -133,7 +142,7 @@ int main() {
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f),
 
-		glm::vec3(2.0f, 1.0f, 0.0f), // modify these 10 cubes to be different!!
+		glm::vec3(2.0f, 1.0f, 0.0f), 
 		glm::vec3(4.0f, 6.0f, -15.0f),
 		glm::vec3(-3.5f, -3.2f, -2.5f),
 		glm::vec3(-5.8f, -3.0f, -12.3f),
@@ -144,6 +153,17 @@ int main() {
 		glm::vec3(3.5f, 1.2f, -1.5f),
 		glm::vec3(-3.3f, 2.0f, -1.5f)
 	};
+
+	// this is to make each cube rotate uniquely
+	for (int i=0; i<20; i++) 
+	{
+		cube_r[i] = r_speed(gen);
+	}
+
+	for (int i = 0; i < 20; i++) 
+	{
+		cubeSize[i] = c_size(gen);
+	}
 
 	// end of verticies section // start of buffer section ---
 	unsigned VBO, VAO;
@@ -217,9 +237,6 @@ int main() {
 
 	// end of texture section // start of render loop ---
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	transformShader.setMat4("projection", projection);
-
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -244,9 +261,6 @@ int main() {
 		// use the shader
 		transformShader.use();
 
-		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH/(float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-		transformShader.setMat4("projection", projection);
-
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		transformShader.setMat4("view", view); 
 		
@@ -254,10 +268,12 @@ int main() {
 
 		for (unsigned int i = 0; i < 20; i++)
 		{
+			glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
+			transformShader.setMat4("projection", projection);
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i; // mess with this for rotation
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			float angle = cube_r[i] * (deltaTime+1) * glfwGetTime(); // mess with this for rotation
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(0.8f, 0.3f, 0.5f));
 			transformShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}		
@@ -279,6 +295,10 @@ void processInput(GLFWwindow* window)
 	}
 
 	float cameraSpeed = static_cast<float>(2.5 * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		cameraSpeed *= 2;
+	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		cameraPos += cameraSpeed * cameraFront;
@@ -294,6 +314,14 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		cameraPos -= cameraUp * cameraSpeed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		cameraPos += cameraUp * cameraSpeed;
 	}
 }
 
@@ -341,8 +369,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	fov -= (float)yoffset;
 	if (fov < 1.0f)
 		fov = 1.0f;
-	if (fov > 45.0f)
-		fov = 45.0f;
+	if (fov > 60.0f)
+		fov = 60.0f;
 }
 
 
