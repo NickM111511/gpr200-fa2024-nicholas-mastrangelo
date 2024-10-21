@@ -34,7 +34,7 @@ float yaw = -90.0f;
 float pitch = 0.0f;
 float lastX = 1080.0f/2.0f;
 float lastY = 720.0f/2.0f;
-float fov;
+float fov = 60.0f;
 
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
@@ -133,16 +133,16 @@ int main() {
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f),
 
-		glm::vec3(0.0f,  0.0f,  0.0f), // modify these 10 cubes to be different!!
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
+		glm::vec3(2.0f, 1.0f, 0.0f), // modify these 10 cubes to be different!!
+		glm::vec3(4.0f, 6.0f, -15.0f),
+		glm::vec3(-3.5f, -3.2f, -2.5f),
+		glm::vec3(-5.8f, -3.0f, -12.3f),
+		glm::vec3(4.4f, -1.4f, -3.5f),
+		glm::vec3(-3.7f, 4.0f, -7.5f),
+		glm::vec3(3.3f, -3.0f, -2.5f),
+		glm::vec3(3.5f, 3.0f, -2.5f),
+		glm::vec3(3.5f, 1.2f, -1.5f),
+		glm::vec3(-3.3f, 2.0f, -1.5f)
 	};
 
 	// end of verticies section // start of buffer section ---
@@ -252,7 +252,7 @@ int main() {
 		
 		glBindVertexArray(VAO);
 
-		for (unsigned int i = 0; i < 10; i++)
+		for (unsigned int i = 0; i < 20; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
