@@ -33,6 +33,7 @@ std::uniform_int_distribution<> z_axis(-15, 0);
 // variables being initialized for later use
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
+const int TOTAL_CUBES = 20; 
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f); // camera position variables
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -45,8 +46,7 @@ float lastX = 1080.0f/2.0f;
 float lastY = 720.0f/2.0f;
 float fov = 60.0f;
 
-const int TOTAL_CUBES = 20; // for the cubes 
-float cube_r[TOTAL_CUBES];
+float cube_r[TOTAL_CUBES]; // for the cubes 
 float cubeSize[TOTAL_CUBES];
 
 float deltaTime = 0.0f; // time variables
