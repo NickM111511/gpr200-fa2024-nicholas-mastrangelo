@@ -160,7 +160,7 @@ int main() {
 	};
 	*/
 
-	// dynamic random places for cubes  ** uncomment this and comment out the top one for this use **
+	// random places for cubes  ** uncomment this and comment out the top one for this use **
 	glm::vec3 cubePositions[TOTAL_CUBES];
 
 	// this is to make each cube rotate uniquely
