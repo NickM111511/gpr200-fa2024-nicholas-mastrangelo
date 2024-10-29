@@ -33,7 +33,7 @@ std::uniform_int_distribution<> z_axis(-15, 0);
 // variables being initialized for later use
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
-const int TOTAL_CUBES = 20; 
+const int TOTAL_CUBES = 20;
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f); // camera position variables
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -42,15 +42,19 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool firstMouse = true; // movement variables
 float yaw = -90.0f;
 float pitch = 0.0f;
-float lastX = 1080.0f/2.0f;
-float lastY = 720.0f/2.0f;
+float lastX = 1080.0f / 2.0f;
+float lastY = 720.0f / 2.0f;
 float fov = 60.0f;
+
+// Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // when I have a camera.h file
 
 float cube_r[TOTAL_CUBES]; // for the cubes 
 float cubeSize[TOTAL_CUBES];
 
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
+
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f); // for lighting
 
 int main() {
 	// Initialization of program --- 
@@ -62,7 +66,7 @@ int main() {
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -77,7 +81,7 @@ int main() {
 	glfwMakeContextCurrent(window);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	
+
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGL(glfwGetProcAddress)) {
@@ -86,10 +90,61 @@ int main() {
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	// end of window section // start of verticies section ---
-	Shader transformShader("assets/transform.vert","assets/transform.frag");
+	// end of window section // start of verticies section --- 
+	Shader lightingShader("assets/basic_light.vert", "assets/basic_light.frag");
+	Shader lightCubeShader("assets/light_cube.vert", "assets/light_cube.frag");
+	// Shader transformShader("assets/transform.vert","assets/transform.frag"); old assignment 4 thing, move later
 
-	//this is to make the cube
+	// make new verts, 8 columns, new one to last 2 columns of old one
+	// ex: 1.0,2.0,3.0,  4.0,5.0,6.0,  7.0,8.0
+
+	// assignment 5 verts, make sure to add last 2 from old vert (Alt + scroll)
+	float vertices[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+
+	//this is to make the cube // old assingment 4 thing
+	/*
 	float vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -133,6 +188,7 @@ int main() {
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+	*/
 
 	// static places for cubes ** uncomment this and comment out the bottom one for this use **
 	/*
@@ -147,7 +203,7 @@ int main() {
 		glm::vec3(1.5f,  2.0f, -2.5f),
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f),
-		glm::vec3(2.0f, 1.0f, 0.0f), 
+		glm::vec3(2.0f, 1.0f, 0.0f),
 		glm::vec3(4.0f, 6.0f, -15.0f),
 		glm::vec3(-3.5f, -3.2f, -2.5f),
 		glm::vec3(-5.8f, -3.0f, -12.3f),
@@ -176,36 +232,54 @@ int main() {
 	}
 
 	// this is to make each position uniquely
-	for (int i = 0; i < TOTAL_CUBES; i++) 
+	for (int i = 0; i < TOTAL_CUBES; i++)
 	{
 		cubePositions[i] = glm::vec3(x_axis(gen), y_axis(gen), z_axis(gen));
 	}
 
 	// end of verticies section // start of buffer section ---
-	unsigned VBO, VAO;
-	glGenVertexArrays(1, &VAO);
+	// this part is for the lighting procedure to the cubes
+	unsigned VBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position
+	glBindVertexArray(cubeVAO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position // change 5 to 8
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
+	/*
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
 	glEnableVertexAttribArray(1);
+	*/
 
-	// end of buffer section // start of texture section ---
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color // change 5 to 8 and 3 to 6 and 2 to 3
+	glEnableVertexAttribArray(1); // change 1 to 2
+
+	// this part is for the cube after lighting
+	unsigned int lightCubeVAO;
+	glGenVertexArrays(1, &lightCubeVAO);
+	glBindVertexArray(lightCubeVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// end of buffer section // start of texture section --- // assignment 4 thing, remove if not needed
+	/*
 	unsigned int texture1, texture2;
 
-	// 1st texture (aka det) 
-	glGenTextures(1, &texture1);  
+	// 1st texture (aka det)
+	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -214,7 +288,7 @@ int main() {
 	// loading the textures
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0);
-	
+
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -225,34 +299,39 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-	
+
 	//2nd texture (aka boxside)
-	glGenTextures(1, &texture2); 
+	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
-	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	// loading the texture 
-	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0); 
-	if(data) 
+	// loading the texture
+	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0);
+	if(data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
+	*/
 
 	// using the textures here
-	transformShader.use();
-	transformShader.setInt("texture1", 0);
-	transformShader.setInt("texture2", 1);
+
+	// old assignment 4 things, remove later 
+	/*
+	 transformShader.use();
+	 transformShader.setInt("texture1", 0);
+	 transformShader.setInt("texture2", 1);
+	*/
 
 	// end of texture section // start of render loop ---
 
@@ -267,42 +346,59 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		processInput(window); 
+		processInput(window);
 
 		// render starting
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		lightingShader.use();
+		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.setVec3("lightPos", lightPos);
+
 		// binding this to texture units
+
+		// old assignment 4 stuff, remove later
+		/*
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+		*/
 
 		// use the shader
-		transformShader.use();
+		// transformShader.use(); // may not be needed
 
-		// for the camera
+		// for the camera ------------- Need to add the camera header to fix this immediately !!
+		/**/
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		transformShader.setMat4("view", view); 
+		// transformShader.setMat4("view", view); 
 
 		glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
-		transformShader.setMat4("projection", projection);
-		
-		glBindVertexArray(VAO);
+		// transformShader.setMat4("projection", projection);
 
+		lightingShader.setMat4("projection", projection);
+		lightingShader.setMat4("view", view);
+
+
+		glBindVertexArray(cubeVAO);
+
+		// FIX THIS LATER
+		/*
 		for (unsigned int i = 0; i < TOTAL_CUBES; i++) // making each cube here
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			model = glm::scale(model, glm::vec3(cubeSize[i]));
 
-			float angle = cube_r[i] * (deltaTime+1) * glfwGetTime(); 
+			float angle = cube_r[i] * (deltaTime+1) * glfwGetTime();
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(0.8f, 0.3f, 0.5f));
 			transformShader.setMat4("model", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}		
+		}
+		*/
 
 		//Drawing happens here!
 		glfwSwapBuffers(window);
@@ -352,12 +448,12 @@ void processInput(GLFWwindow* window)
 }
 
 // this is for the mouse movement function
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) 
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
 	float xpos = static_cast<float>(xposIn);
 	float ypos = static_cast<float>(yposIn);
 
-	if (firstMouse) 
+	if (firstMouse)
 	{
 		lastX = xpos;
 		lastY = ypos;
@@ -375,7 +471,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	yaw += xoffset;
 	pitch += yoffset;
 
-	if (pitch > 89.0f) 
+	if (pitch > 89.0f)
 	{
 		pitch = 89.0f;
 	}
@@ -383,7 +479,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	{
 		pitch = -89.0f;
 	}
-	
+
 	glm::vec3 front;
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
