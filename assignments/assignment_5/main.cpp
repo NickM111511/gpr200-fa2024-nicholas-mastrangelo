@@ -46,15 +46,11 @@ float lastX = 1080.0f/2.0f;
 float lastY = 720.0f/2.0f;
 float fov = 60.0f;
 
-// Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // when I have a camera.h file
-
 float cube_r[TOTAL_CUBES]; // for the cubes 
 float cubeSize[TOTAL_CUBES];
 
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
-
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f); // for lighting
 
 int main() {
 	// Initialization of program --- 
@@ -90,13 +86,8 @@ int main() {
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	// end of window section // start of verticies section --- 
-	Shader lightingShader("assets/basic_light.vert","assets/basic_light.frag");
-	Shader lightCubeShader("assets/light_cube.vert", "assets/light_cube.frag");
-	// Shader transformShader("assets/transform.vert","assets/transform.frag"); old assignment 4 thing, move later
-
-	// make new verts, 8 columns, new one to last 2 columns of old one
-	// ex: 1.0,2.0,3.0,  4.0,5.0,6.0,  7.0,8.0
+	// end of window section // start of verticies section ---
+	Shader transformShader("assets/transform.vert","assets/transform.frag");
 
 	//this is to make the cube
 	float vertices[] = {
@@ -191,39 +182,21 @@ int main() {
 	}
 
 	// end of verticies section // start of buffer section ---
-	// this part is for the lighting procedure to the cubes
-	unsigned VBO, cubeVAO;
-	glGenVertexArrays(1, &cubeVAO);
+	unsigned VBO, VAO;
+	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	
+	glBindVertexArray(VAO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindVertexArray(cubeVAO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position // change 5 to 8
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position
 	glEnableVertexAttribArray(0);
 
-	/*
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color
 	glEnableVertexAttribArray(1);
-    */
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color // change 5 to 8 and 3 to 6 and 2 to 3
-	glEnableVertexAttribArray(1); // change 1 to 2
-
-	// this part is for the cube after lighting
-	unsigned int lightCubeVAO;
-	glGenVertexArrays(1, &lightCubeVAO);
-	glBindVertexArray(lightCubeVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// end of buffer section // start of texture section --- // assignment 4 thing, remove if not needed
-	/*
+	// end of buffer section // start of texture section ---
 	unsigned int texture1, texture2;
 
 	// 1st texture (aka det) 
@@ -275,16 +248,11 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-    */
 
 	// using the textures here
-
-	// old assignment 4 things, remove later 
-	/*
-	 transformShader.use();
-	 transformShader.setInt("texture1", 0);
-	 transformShader.setInt("texture2", 1);
-	*/
+	transformShader.use();
+	transformShader.setInt("texture1", 0);
+	transformShader.setInt("texture2", 1);
 
 	// end of texture section // start of render loop ---
 
@@ -302,43 +270,27 @@ int main() {
 		processInput(window); 
 
 		// render starting
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		lightingShader.use();
-		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.setVec3("lightPos", lightPos);
-
 		// binding this to texture units
-		
-		// old assignment 4 stuff, remove later
-		/*
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		*/
 
 		// use the shader
-		// transformShader.use(); // may not be needed
+		transformShader.use();
 
-		// for the camera ------------- Need to add the camera header to fix this immediately !!
-		/**/
+		// for the camera
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		// transformShader.setMat4("view", view); 
+		transformShader.setMat4("view", view); 
 
 		glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
-		// transformShader.setMat4("projection", projection);
+		transformShader.setMat4("projection", projection);
 		
-		lightingShader.setMat4("projection", projection);
-		lightingShader.setMat4("view", view);
+		glBindVertexArray(VAO);
 
-
-		glBindVertexArray(cubeVAO);
-
-		// FIX THIS LATER
-		/*
 		for (unsigned int i = 0; i < TOTAL_CUBES; i++) // making each cube here
 		{
 			glm::mat4 model = glm::mat4(1.0f);
@@ -350,8 +302,7 @@ int main() {
 			transformShader.setMat4("model", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		*/		
+		}		
 
 		//Drawing happens here!
 		glfwSwapBuffers(window);
