@@ -12,6 +12,7 @@
 #include <random>
 #include <iostream>
 #include <shader.h>
+#include <camera.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <ew/external/stb_image.h>
@@ -35,9 +36,7 @@ const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 const int TOTAL_CUBES = 20;
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f); // camera position variables
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // for the camera
 
 bool firstMouse = true; // movement variables
 float yaw = -90.0f;
@@ -45,8 +44,6 @@ float pitch = 0.0f;
 float lastX = 1080.0f / 2.0f;
 float lastY = 720.0f / 2.0f;
 float fov = 60.0f;
-
-// Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // when I have a camera.h file
 
 float cube_r[TOTAL_CUBES]; // for the cubes 
 float cubeSize[TOTAL_CUBES];
@@ -248,7 +245,7 @@ int main() {
 
 	glBindVertexArray(cubeVAO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // for position // change 5 to 8
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // for position // change 5 to 8
 	glEnableVertexAttribArray(0);
 
 	/*
@@ -256,7 +253,7 @@ int main() {
 	glEnableVertexAttribArray(1);
 	*/
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3)); // for color // change 5 to 8 and 3 to 6 and 2 to 3
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3)); // for color // change 5 to 8 and 3 to 6 and 2 to 3
 	glEnableVertexAttribArray(1); // change 1 to 2
 
 	// this part is for the cube after lighting
@@ -357,6 +354,28 @@ int main() {
 		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		lightingShader.setVec3("lightPos", lightPos);
 
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		lightingShader.setMat4("projection", projection);
+		lightingShader.setMat4("view", view);
+
+		glm::mat4 model = glm::mat4(1.0f); 
+		lightingShader.setMat4("model", model);
+
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		lightCubeShader.use();
+		lightCubeShader.setMat4("projection", projection);
+		lightCubeShader.setMat4("view", view);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f));
+		lightCubeShader.setMat4("model", model);
+
+		glBindVertexArray(lightCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		// binding this to texture units
 
 		// old assignment 4 stuff, remove later
@@ -369,20 +388,6 @@ int main() {
 
 		// use the shader
 		// transformShader.use(); // may not be needed
-
-		// for the camera ------------- Need to add the camera header to fix this immediately !!
-		/**/
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		// transformShader.setMat4("view", view); 
-
-		glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)SCREEN_WIDTH) / ((float)SCREEN_HEIGHT), 0.1f, 1000.0f);
-		// transformShader.setMat4("projection", projection);
-
-		lightingShader.setMat4("projection", projection);
-		lightingShader.setMat4("view", view);
-
-
-		glBindVertexArray(cubeVAO);
 
 		// FIX THIS LATER
 		/*
@@ -415,36 +420,42 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
-
-	float cameraSpeed = static_cast<float>(2.5 * deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) 
 	{
-		cameraSpeed *= 2;
+		camera.ProcessKeyboard(SPRINT, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		cameraPos -= cameraUp * cameraSpeed;
+		camera.ProcessKeyboard(DOWN, deltaTime);
 	}
+		
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		cameraPos += cameraUp * cameraSpeed;
+		camera.ProcessKeyboard(UP, deltaTime);
 	}
+		
 }
 
 // this is for the mouse movement function
@@ -461,40 +472,18 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	}
 
 	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
 	lastX = xpos;
 	lastY = ypos;
 
-	float sensitivity = 0.1f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-	yaw += xoffset;
-	pitch += yoffset;
-
-	if (pitch > 89.0f)
-	{
-		pitch = 89.0f;
-	}
-	if (pitch < -89.0f)
-	{
-		pitch = -89.0f;
-	}
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(front);
+	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // this if for the scroll function
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	fov -= (float)yoffset;
-	if (fov < 1.0f)
-		fov = 1.0f;
-	if (fov > 60.0f)
-		fov = 60.0f;
+	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
