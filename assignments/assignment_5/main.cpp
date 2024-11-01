@@ -55,7 +55,7 @@ float cubeSize[TOTAL_CUBES];
 float deltaTime = 0.0f; // time variables
 float lastFrame = 0.0f;
 
-glm::vec3 lightPos(-1.2f, 1.0f, -2.0f); // for lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f); // for lighting
 
 int main() {
 	// Initialization of program --- 
@@ -97,52 +97,103 @@ int main() {
 	// end of window section // start of verticies section --- 
 	Shader lightingShader("assets/basic_light.vert", "assets/basic_light.frag"); // lighting shader
 	Shader lightCubeShader("assets/light_cube.vert", "assets/light_cube.frag"); // cube with the lighting 
-	Shader transformShader("assets/transform.vert", "assets/transform.frag"); // this is for the 20 cubes
+	// Shader transformShader("assets/transform.vert", "assets/transform.frag"); // this is for the 20 cubes
+
+	
+	float vertices[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, -1.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  1.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f
+	};
+	
+	/*
+	
+	*/
 
 	// assignment 5 verts, 6x8 for each side of the cube
+	/*
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  -0.5f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	 -0.5f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,	 -0.5f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,	  0.5f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,	  0.5f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,	  0.5f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,   0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  -0.5f,  0.0f
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
+	*/
 
 	// random places for cubes  
 	glm::vec3 cubePositions[TOTAL_CUBES];
@@ -182,6 +233,7 @@ int main() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
 	glEnableVertexAttribArray(2);
+	
 
 	// this part is for the cube after lighting
 	unsigned int lightCubeVAO;
@@ -200,7 +252,7 @@ int main() {
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("assets/det.png", &width, &height, &nrChannels, 0); // initalizes with det, if not using it anymore then change this.
-
+	/*
 	// 1st texture (aka det)
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -222,7 +274,7 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-
+	*/
 
 	//2nd texture (aka boxside)
 	glGenTextures(1, &texture2);
@@ -250,9 +302,9 @@ int main() {
 	// using the textures here
 
 	// old assignment 4 things, remove later 
-	transformShader.use();
-	transformShader.setInt("texture1", 0); // not using det right now
-	transformShader.setInt("texture2", 1);
+	// transformShader.use();
+	// transformShader.setInt("texture1", 0); // not using det right now
+	// transformShader.setInt("texture2", 1);
 
 	// end of texture section // start of render loop ---
 
@@ -270,11 +322,60 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// TEST CODE FROM OLD VERSION
+		// activating shader
+		lightingShader.use();
+		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		lightingShader.setVec3("lightPos", lightPos);
+		lightingShader.setVec3("viewPos", camera.Position);
+
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		lightingShader.setMat4("projection", projection);
+		lightingShader.setMat4("view", view);
+
+		// world transformation
+		// glm::mat4 model = glm::mat4(1.0f);
+		// lightingShader.setMat4("model", model);
+		glBindVertexArray(cubeVAO);
+
+		for (unsigned int i = 0; i < TOTAL_CUBES; i++) // making each cube here
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			model = glm::scale(model, glm::vec3(cubeSize[i]));
+			float angle = cube_r[i] * (deltaTime + 1); //  * glfwGetTime() // for them to constantly rotate
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(0.8f, 0.3f, 0.5f));
+			lightingShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		// render the cube
+		// glBindVertexArray(cubeVAO);
+		// glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		// also draw the lamp object
+		lightCubeShader.use();
+		lightCubeShader.setMat4("projection", projection);
+		lightCubeShader.setMat4("view", view);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+		lightCubeShader.setMat4("model", model);
+
+		glBindVertexArray(lightCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		// CODE THAT WORKS WTIH MULTIPLE CUBES
+		/*
 		// camera starting
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 
-		/**/
+		
 		lightingShader.use(); // calls for lightingShader properties
 		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -291,9 +392,6 @@ int main() {
 		glBindVertexArray(cubeVAO);
 
 		// binding textures
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		transformShader.setInt("texture1", 0);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
@@ -309,7 +407,6 @@ int main() {
 			transformShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		/**/
 
 		lightCubeShader.use();
 		lightCubeShader.setMat4("projection", projection);
@@ -322,6 +419,8 @@ int main() {
 
 		glBindVertexArray(lightCubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		*/
+
 
 		// code not being used.
 		

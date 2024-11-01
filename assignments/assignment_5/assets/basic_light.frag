@@ -8,11 +8,14 @@ in vec2 TextCoords;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
-uniform vec3 objectColor;
+uniform sampler2D texture1;
 uniform bool blinn;
 
 void main() 
 {
+	//for the texture coordinates
+	vec3 objectColor = texture(texture1, TextCoords).rgb;
+
 	// this part is for ambience
 	float ambientStrength = 0.1;
 	vec3 ambient = ambientStrength * lightColor;
@@ -38,6 +41,7 @@ void main()
         spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 8.0);
     }
 	vec3 specular = vec3(0.3) * spec; 
+	
 	
 	// adding them up to give the final lighting color
 	vec3 result = (ambient + diffuse + specular) * objectColor;
