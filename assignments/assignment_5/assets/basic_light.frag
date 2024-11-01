@@ -25,9 +25,7 @@ void main()
 
 	// this part is for specular
 	vec3 viewDirection = normalize(viewPos - FragPos);
-	vec3 reflectDirection = reflect(-lightDir, norm);
 	float spec = 0.0f;
-
 	// blinn phong part
 	if(blinn)
     {
@@ -36,7 +34,7 @@ void main()
     }
     else
     {
-        vec3 reflectDir = reflect(-lightDir, norm);
+       vec3 reflectDirection = reflect(-lightDir, norm);
         spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 8.0);
     }
 	vec3 specular = vec3(0.3) * spec; 
