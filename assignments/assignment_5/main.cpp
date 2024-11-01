@@ -97,51 +97,51 @@ int main() {
 	// end of window section // start of verticies section --- 
 	Shader lightingShader("assets/basic_light.vert", "assets/basic_light.frag"); // lighting shader
 	Shader lightCubeShader("assets/light_cube.vert", "assets/light_cube.frag"); // cube with the lighting 
-	Shader transformShader("assets/transform.vert","assets/transform.frag"); // this is for the 20 cubes
+	Shader transformShader("assets/transform.vert", "assets/transform.frag"); // this is for the 20 cubes
 
 	// assignment 5 verts, 6x8 for each side of the cube
 	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  -0.5f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,	 -0.5f,  1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,	 -0.5f,  0.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,	  0.5f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,	  0.5f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,	  0.5f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
 
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,	 -0.5f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,	 -0.5f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,	  0.5f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f,	  0.5f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  -0.5f,  0.0f
 	};
 
 	// random places for cubes  
@@ -176,12 +176,12 @@ int main() {
 
 	glBindVertexArray(cubeVAO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6)); 
-	glEnableVertexAttribArray(2); 
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
+	glEnableVertexAttribArray(2);
 
 	// this part is for the cube after lighting
 	unsigned int lightCubeVAO;
@@ -194,7 +194,7 @@ int main() {
 	glEnableVertexAttribArray(0);
 
 	// end of buffer section // start of texture section --- // assignment 4 thing, remove if not needed
-	
+
 	// vairables needed to load data image
 	unsigned int texture1, texture2;
 	int width, height, nrChannels;
@@ -222,7 +222,7 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-    
+
 
 	//2nd texture (aka boxside)
 	glGenTextures(1, &texture2);
@@ -236,7 +236,7 @@ int main() {
 
 	// loading the texture
 	data = stbi_load("assets/boxside.png", &width, &height, &nrChannels, 0);
-	if(data)
+	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -246,13 +246,13 @@ int main() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
-	
+
 	// using the textures here
 
 	// old assignment 4 things, remove later 
-	 transformShader.use();
-	 transformShader.setInt("texture1", 0); // not using det right now
-	 transformShader.setInt("texture2", 1);
+	transformShader.use();
+	transformShader.setInt("texture1", 0); // not using det right now
+	transformShader.setInt("texture2", 1);
 
 	// end of texture section // start of render loop ---
 
@@ -274,7 +274,7 @@ int main() {
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 
-		/*
+		/**/
 		lightingShader.use(); // calls for lightingShader properties
 		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -283,9 +283,9 @@ int main() {
 		lightingShader.setMat4("projection", projection);
 		lightingShader.setMat4("view", view);
 		lightingShader.setInt("blinn", true); // needed later
-		*/
+		
 
-		transformShader.use(); 
+		transformShader.use();
 		transformShader.setMat4("projection", projection);
 		transformShader.setMat4("view", view);
 		glBindVertexArray(cubeVAO);
@@ -309,22 +309,22 @@ int main() {
 			transformShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		/*
+		/**/
 
 		lightCubeShader.use();
 		lightCubeShader.setMat4("projection", projection);
 		lightCubeShader.setMat4("view", view);
-		
+
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightCubeShader.setMat4("model", model);
 
-		// glBindVertexArray(lightCubeVAO);
-		// glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(lightCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// code not being used.
-		*/
+		
 
 		//Drawing happens here!
 		glfwSwapBuffers(window);
@@ -341,42 +341,42 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
-	
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) 
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(SPRINT, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(FORWARD, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(DOWN, deltaTime);
 	}
-		
+
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(UP, deltaTime);
 	}
-		
+
 }
 
 // this is for the mouse movement function
@@ -406,5 +406,3 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
-
-
